@@ -36,7 +36,8 @@ program mastermindI.aleo {
         blows: u8
     }
 
-    mapping games: field => u8;
+    mapping isGameCreated: field => bool;
+    mapping gameWinners: field => address;
 
     transition offer_game(game_id: field, new_secret: secret, opponent: address) -> move {
 
@@ -82,7 +83,9 @@ program mastermindI.aleo {
     }
 
     finalize offer_game(game_id: field) {
-        increment(games, game_id, 255u8);
+        let hasGameBeenCreated: bool = Mapping::get(isGameCreated, game_id);
+        assert(!hasGameBeenCreated);
+        Mapping::set(isGameCreated, game_id, true);
     }
 
     transition accept_game(offer_move: move, new_secret: secret) -> move {
@@ -181,7 +184,17 @@ program mastermindI.aleo {
             hits,
             blows
         };
+    }
 
+    transition win(opponent_move: move) {
+        assert(opponent_move.game.started);
+        assert_eq(opponent_move.hits, 3u8);
+
+        return then finalize(opponent_move.game.id);
+    }
+
+    finalize win(gameId: field) {
+        Mapping::set(gameWinners, gameId, self.caller);
     }
 
 }

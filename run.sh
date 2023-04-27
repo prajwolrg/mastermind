@@ -52,7 +52,7 @@ load_P2() {
 echo "STEP 1: P1 creates a game and offers to P2
 "
 load_P1
-leo run offer_game "${GAME_ID}" "${P1_SECRET}" "${P2_ADDR}" > outputs/offer_game.move
+leo run offer_game "${GAME_ID}" "${P1_SECRET}" "${P2_ADDR}" > outputs/1_offer_game.move
 
 echo "
 ✅ Success: Game Offered. Game Status:
@@ -91,7 +91,7 @@ leo run accept_game '{
   hits: 0u8.private,
   blows: 0u8.private,
   _nonce: 4304234582584161222006203195424646986785902330183375426776730527878554918531group.public
-}' "${P2_SECRET}" > outputs/accept_game.move
+}' "${P2_SECRET}" > outputs/2_accept_game.move
 
 echo "
 ✅ Success: Game Accepted. Game Status:
@@ -132,7 +132,7 @@ leo run start_game '{
   hits: 0u8.private,
   blows: 0u8.private,
   _nonce: 187399225973057883148804049741506250315462706455897819382681563165650211777group.public
-}' "${P1_FIRST_GUESS}" > outputs/start_game.move
+}' "${P1_FIRST_GUESS}" > outputs/3_start_game.move
 
 echo "
 ✅ Success: Game Started. Game Status:
@@ -175,7 +175,7 @@ leo run play '{
   hits: 0u8.private,
   blows: 0u8.private,
   _nonce: 8149421582681812140272606675585073498037110677768117426632245107863646891256group.public
-}' "${P2_SECRET}" "${P2_FIRST_GUESS}" > outputs/play1.move
+}' "${P2_SECRET}" "${P2_FIRST_GUESS}" > outputs/4_P1_guess_1.move
 
 echo "
 ✅ Success: Playing Game. Game Status
@@ -220,7 +220,7 @@ leo run play '{
   hits: 1u8.private,
   blows: 0u8.private,
   _nonce: 6582567456528561440640155374621523804008146339198881355721086796346177531539group.public
-}' "${P1_SECRET}"  "${P1_SECOND_GUESS}" > outputs/play2.move
+}' "${P1_SECRET}"  "${P1_SECOND_GUESS}" > outputs/5_P2_guess_1.move
 
 echo "
 ✅ Success: Playing Game. Game Status:
@@ -232,6 +232,53 @@ echo "
 ########         GUESSES:: P1: 1-2-3 -> Hits:1 Blows:0                 ########
 ########                                                               ########
 ########                   P2: 1-2-3 -> Hits:3 Blows:0                 ########
+########                                                               ########
+###############################################################################
+"
+
+
+#########################################################
+
+echo " STEP 6: P2 wins the game."
+load_P2
+leo run win '{
+  owner: aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry.private,
+  gates: 0u64.private,
+  game: {
+    id: 1field.private,
+    started: true.private,
+    finished: false.private
+  },
+  player_1: {
+    addr: aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy.private,
+    secret_hash: 4150411142742965853031818295656888588698558427018459831715669006349479301277field.private
+  },
+  player_2: {
+    addr: aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry.private,
+    secret_hash: 7408027298759572436229032800668706857653653501832695599177141981492741491812field.private
+  },
+  guess: {
+    first: 1u8.private,
+    second: 2u8.private,
+    third: 3u8.private
+  },
+  hits: 3u8.private,
+  blows: 0u8.private,
+  _nonce: 3155947478402936230615357597594635244038806572154548944801480839067723133623group.public
+
+}' > outputs/6_P2_wins.move
+
+echo "
+✅ Success: Playing Game. Game Status:
+###############################################################################
+########                                                               ########
+########         SECRETS:: P1: 1-2-3                                   ########
+########                   P2: 0-4-3                                   ########
+########                                                               ########
+########         GUESSES:: P1: 1-2-3 -> Hits:1 Blows:0                 ########
+########                                                               ########
+########                   P2: 1-2-3 -> Hits:3 Blows:0                 ########
+########                                (Wins)                         ########
 ########                                                               ########
 ###############################################################################
 "

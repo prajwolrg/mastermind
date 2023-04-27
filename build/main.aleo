@@ -30,9 +30,16 @@ record move:
     hits as u8.private;
     blows as u8.private;
 
-mapping games:
+
+mapping isGameCreated:
 	key left as field.public;
-	value right as u8.public;
+	value right as boolean.public;
+
+
+mapping gameWinners:
+	key left as field.public;
+	value right as address.public;
+
 function offer_game:
     input r0 as field.private;
     input r1 as secret.private;
@@ -51,8 +58,7 @@ function offer_game:
     assert.eq r12 true;
     cast 5u8 5u8 5u8 into r13 as guess;
     cast r0 false false into r14 as game;
-    hash.bhp256 r1 into r15;
-    cast self.caller r15 into r16 as player;
+    hash.bhp256 r1 into r15;    cast self.caller r15 into r16 as player;
     cast r2 0u64 r14 r16 r16 r13 0u8 0u8 into r17 as move.record;
     output r17 as move.record;
 
@@ -60,7 +66,11 @@ function offer_game:
 
 finalize offer_game:
     input r0 as field.public;
-    increment games[r0] by 255u8;
+    get isGameCreated[r0] into r1;
+    not r1 into r2;
+    assert.eq r2 true;
+    set true into isGameCreated[r0];
+
 
 function accept_game:
     input r0 as move.record;
@@ -79,10 +89,10 @@ function accept_game:
     is.neq r1.third r1.first into r11;
     and r10 r11 into r12;
     assert.eq r12 true;
-    hash.bhp256 r1 into r13;
-    cast self.caller r13 into r14 as player;
+    hash.bhp256 r1 into r13;    cast self.caller r13 into r14 as player;
     cast r0.player_1.addr 0u64 r0.game r0.player_1 r14 r0.guess 0u8 0u8 into r15 as move.record;
     output r15 as move.record;
+
 
 function start_game:
     input r0 as move.record;
@@ -93,6 +103,7 @@ function start_game:
     cast r0.game.id true false into r3 as game;
     cast r0.player_2.addr 0u64 r3 r0.player_1 r0.player_2 r1 0u8 0u8 into r4 as move.record;
     output r4 as move.record;
+
 
 closure calculate_hits:
     input r0 as guess;
@@ -107,6 +118,7 @@ closure calculate_hits:
     add r7 1u8 into r9;
     ternary r8 r9 r7 into r10;
     output r10 as u8;
+
 
 closure calculate_blows:
     input r0 as guess;
@@ -128,14 +140,26 @@ closure calculate_blows:
     ternary r14 r15 r11 into r16;
     output r16 as u8;
 
+
 function play:
     input r0 as move.record;
     input r1 as secret.private;
     input r2 as guess.private;
     assert.eq r0.game.started true;
-    hash.bhp256 r1 into r3;
-    assert.eq r0.player_2.secret_hash r3;
+    hash.bhp256 r1 into r3;    assert.eq r0.player_2.secret_hash r3;
     call calculate_hits r0.guess r1 into r4;
     call calculate_blows r0.guess r1 into r5;
     cast r0.player_1.addr 0u64 r0.game r0.player_2 r0.player_1 r2 r4 r5 into r6 as move.record;
     output r6 as move.record;
+
+
+function win:
+    input r0 as move.record;
+    assert.eq r0.game.started true;
+    assert.eq r0.hits 3u8;
+
+    finalize r0.game.id;
+
+finalize win:
+    input r0 as field.public;
+    set self.caller into gameWinners[r0];
