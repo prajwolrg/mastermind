@@ -31,15 +31,6 @@ record move:
     blows as u8.private;
 
 
-mapping isGameCreated:
-	key left as field.public;
-	value right as boolean.public;
-
-
-mapping gameWinners:
-	key left as field.public;
-	value right as address.public;
-
 function offer_game:
     input r0 as field.private;
     input r1 as u8.private;
@@ -65,15 +56,6 @@ function offer_game:
     hash.bhp256 r18 into r19;    cast self.caller r19 into r20 as player;
     cast r5 0u64 r17 r20 r20 r16 0u8 0u8 into r21 as move.record;
     output r21 as move.record;
-
-    finalize r0;
-
-finalize offer_game:
-    input r0 as field.public;
-    get isGameCreated[r0] into r1;
-    not r1 into r2;
-    assert.eq r2 true;
-    set true into isGameCreated[r0];
 
 
 function accept_game:
@@ -169,15 +151,3 @@ function play:
     call calculate_blows r0.guess r8 into r12;
     cast r0.player_1.addr 0u64 r0.game r0.player_2 r0.player_1 r10 r11 r12 into r13 as move.record;
     output r13 as move.record;
-
-
-function win:
-    input r0 as move.record;
-    assert.eq r0.game.started true;
-    assert.eq r0.hits 3u8;
-
-    finalize r0.game.id;
-
-finalize win:
-    input r0 as field.public;
-    set self.caller into gameWinners[r0];

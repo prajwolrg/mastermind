@@ -36,8 +36,8 @@ program mastermindII.aleo {
         blows: u8
     }
 
-    mapping isGameCreated: field => bool;
-    mapping gameWinners: field => address;
+    // mapping isGameCreated: field => bool;
+    // mapping gameWinners: field => address;
 
     transition offer_game(game_id: field, first: u8, second: u8, third: u8, blinding_factor: field, opponent: address) -> move {
 
@@ -86,14 +86,14 @@ program mastermindII.aleo {
             blows: 0u8
         };
 
-        return offer_move then finalize(game_id);
+        return offer_move; //  then finalize(game_id);
     }
 
-    finalize offer_game(game_id: field) {
-        let hasGameBeenCreated: bool = Mapping::get(isGameCreated, game_id);
-        assert(!hasGameBeenCreated);
-        Mapping::set(isGameCreated, game_id, true);
-    }
+    // finalize offer_game(game_id: field) {
+    //     let hasGameBeenCreated: bool = Mapping::get(isGameCreated, game_id);
+    //     assert(!hasGameBeenCreated);
+    //     Mapping::set(isGameCreated, game_id, true);
+    // }
 
 
     transition accept_game(offer_move: move, first: u8, second: u8, third: u8, blinding_factor: field) -> move {
@@ -220,16 +220,16 @@ program mastermindII.aleo {
         };
     }
 
-    transition win(opponent_move: move) {
-        assert(opponent_move.game.started);
-        assert_eq(opponent_move.hits, 3u8);
+    // transition win(opponent_move: move) {
+    //     assert(opponent_move.game.started);
+    //     assert_eq(opponent_move.hits, 3u8);
 
-        return then finalize(opponent_move.game.id);
-    }
+    //     return then finalize(opponent_move.game.id);
+    // }
 
-    finalize win(gameId: field) {
-        Mapping::set(gameWinners, gameId, self.caller);
-    }
+    // finalize win(gameId: field) {
+    //     Mapping::set(gameWinners, gameId, self.caller);
+    // }
 
 
 }

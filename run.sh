@@ -59,7 +59,7 @@ echo "
 
 leo run accept_game '{
   owner: aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry.private,
-  gates: 0u64.private,
+  microcredits: 0u64.private,
   game: {
     id: 1field.private,
     started: false.private,
